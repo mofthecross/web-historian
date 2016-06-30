@@ -8,28 +8,32 @@ exports.handleRequest = function(request, response) {
       console.log('serveAssets was successful!');
     });
   } else if (request.method === 'POST') {
-    console.log(request.url);
     // user types URL in input box
     // receive the POST request from the client (url-encoded)
     var requestedURL;
 
-    // if the submitted URL is not in the list of sites,
-    if (!archive.isUrlInList(requestedURL)) {
-      // add it to the list
-      archive.addUrlToList(requestedURL);
-    }
-    // if the submitted URL's HTML is in data storage,
-    if (archive.isUrlArchived(requestedURL)) {
-      // auto-redirect the user to the page that serves up the archived file
+    var urlEncodedString = '';
+    request.on('data', function(data) {
+      urlEncodedString += data;
+    });
+    request.on('end', function() {
+      urlEncodedString = urlEncodedString.split('=')[1];
 
-    // else
-    } else {
-      // auto-redirect the user to the page loading.html to indicate that we don't have its content yet
+      archive.isUrlInList(urlEncodedString, function(isInList) {
+        var sendRedirect = function() {
+          archive.isUrlArchived(urlEncodedString, function(isArchived) {
+            response.writeHead(302, {Location: '/' + isArchived ? urlEncodedString : 'loading.html'});
+            response.end();
+          });
+        };
 
-    }
+        if (!isInList) {
+          archive.addUrlToList(urlEncodedString, sendRedirect);
+        } else {
+          sendRedirect();
+        }
+      });
 
-
-    // res.writeHead(301, {Location: 'http://new-website.com'});
-    // res.end();
+    });
   }
 };

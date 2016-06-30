@@ -111,7 +111,7 @@ describe('archive helpers', function() {
 
   describe('#addUrlToList', function () {
     it('should add a url to the list', function (done) {
-      var urlArray = ['example1.com', 'example2.com'];
+      var urlArray = ['example1.com', 'example2.com\n'];
       fs.writeFileSync(archive.paths.list, urlArray.join('\n'));
 
       archive.addUrlToList('someurl.com', function () {
@@ -151,8 +151,7 @@ describe('archive helpers', function() {
       setTimeout(function () {
         expect(fs.readdirSync(archive.paths.archivedSites)).to.deep.equal(urlArray);
         done();
-      }, 1800);
+      }, 500);
     });
   });
 });
-

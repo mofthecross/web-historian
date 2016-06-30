@@ -45,12 +45,12 @@ exports.isUrlInList = function(url, callback) {
 
 exports.addUrlToList = function(url, callback) {
   exports.readListOfUrls(function(arrayOfUrls) {
-    arrayOfUrls.push(url);
-    fs.writeFile(exports.paths.list, arrayOfUrls.join('\n'), function(error) {
+    arrayOfUrls[arrayOfUrls.length - 1] = url;
+    fs.writeFile(exports.paths.list, arrayOfUrls.join('\n') + '\n', function(error) {
       if (error) {
-        console.log('Failed to add to the list');
+        console.log('Failed to add URL to the list');
       } else {
-        console.log('File has been added');
+        console.log('URL has been added');
         callback();
       }
     });
