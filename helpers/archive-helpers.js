@@ -1,4 +1,5 @@
 var fs = require('fs');
+var http = require('http');
 var path = require('path');
 var _ = require('underscore');
 
@@ -25,17 +26,64 @@ exports.initialize = function(pathsObj) {
 // The following function names are provided to you to suggest how you might
 // modularize your code. Keep it clean!
 
-exports.readListOfUrls = function() {
+exports.readListOfUrls = function(callback) {
+  fs.readFile(exports.paths.list, function(error, data) {
+    if (error) {
+      console.log('Error reading sites.txt');
+    } else {
+      var arrayOfUrls = data.toString().split('\n');
+      callback(arrayOfUrls);
+    }
+  });
 };
 
-exports.isUrlInList = function() {
+exports.isUrlInList = function(url, callback) {
+  exports.readListOfUrls(function(arrayOfUrls) {
+    callback(_.contains(arrayOfUrls, url));
+  });
 };
 
-exports.addUrlToList = function() {
+exports.addUrlToList = function(url, callback) {
+  exports.readListOfUrls(function(arrayOfUrls) {
+    arrayOfUrls.push(url);
+    fs.writeFile(exports.paths.list, arrayOfUrls.join('\n'), function(error) {
+      if (error) {
+        console.log('Failed to add to the list');
+      } else {
+        console.log('File has been added');
+        callback();
+      }
+    });
+  });
 };
 
-exports.isUrlArchived = function() {
+exports.isUrlArchived = function(url, callback) {
+  fs.access(path.join(exports.paths.archivedSites, url), fs.R_OK, function(error) {
+    callback(!error);
+  });
 };
 
-exports.downloadUrls = function() {
+// Only pass this function Urls that have already been downloaded
+exports.downloadUrls = function(urlArray) {
+  urlArray.forEach(function(url) {
+    var options = {
+      host: url,
+      path: ''
+    };
+    http.get(options, function(response) {
+      var bodyChunks = [];
+      response.on('data', function(chunk) {
+        bodyChunks.push(chunk);
+      });
+      response.on('end', function() {
+        var body = Buffer.concat(bodyChunks);
+
+        fs.writeFile(path.join(exports.paths.archivedSites, url), body, function(error) {
+          if (error) { throw error; }
+        });
+      });
+    });
+  });
+
+  // Todo: handle http get errors
 };
