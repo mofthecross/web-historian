@@ -1,0 +1,1 @@
+* * * * * /usr/local/bin/node /Users/student/Desktop/2016-06-web-historian/workers/htmlfetcher.js > /Users/student/Desktop/2016-06-web-historian/workers/workerlog.txt
