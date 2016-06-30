@@ -32,6 +32,7 @@ exports.readListOfUrls = function(callback) {
       console.log('Error reading sites.txt');
     } else {
       var arrayOfUrls = data.toString().split('\n');
+      arrayOfUrls.pop();
       callback(arrayOfUrls);
     }
   });
@@ -45,7 +46,7 @@ exports.isUrlInList = function(url, callback) {
 
 exports.addUrlToList = function(url, callback) {
   exports.readListOfUrls(function(arrayOfUrls) {
-    arrayOfUrls[arrayOfUrls.length - 1] = url;
+    arrayOfUrls.push(url);
     fs.writeFile(exports.paths.list, arrayOfUrls.join('\n') + '\n', function(error) {
       if (error) {
         console.log('Failed to add URL to the list');

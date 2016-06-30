@@ -22,7 +22,8 @@ exports.handleRequest = function(request, response) {
       archive.isUrlInList(urlEncodedString, function(isInList) {
         var sendRedirect = function() {
           archive.isUrlArchived(urlEncodedString, function(isArchived) {
-            response.writeHead(302, {Location: '/' + isArchived ? urlEncodedString : 'loading.html'});
+            console.log(urlEncodedString, isArchived);
+            response.writeHead(302, {Location: '/' + (isArchived ? urlEncodedString : 'loading.html')});
             response.end();
           });
         };
